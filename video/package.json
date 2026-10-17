@@ -1,0 +1,32 @@
+{
+  "name": "android-firebase-tutorial-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tutorial video: build a basic Android app in Java with Firebase (made with Remotion)",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render Tutorial out/tutorial.mp4",
+    "still": "remotion still",
+    "voice": "tsx scripts/generate-voice.ts",
+    "script": "tsx scripts/write-script-md.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/inter": "5.2.8",
+    "@fontsource/jetbrains-mono": "5.2.8",
+    "@remotion/cli": "4.0.531",
+    "@remotion/fonts": "4.0.531",
+    "@remotion/media-parser": "4.0.531",
+    "@remotion/media-utils": "4.0.531",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.531"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.10",
+    "@types/react": "19.2.2",
+    "dotenv": "17.2.3",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

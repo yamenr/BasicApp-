@@ -1,0 +1,8 @@
+<resources>
+    <color name="brand_green">#2E7D5B</color>
+    <color name="brand_green_dark">#1F5A41</color>
+    <color name="firebase_amber">#FFA000</color>
+    <color name="delete_red">#C62828</color>
+    <color name="screen_background">#F4F6F8</color>
+    <color name="text_secondary">#5F6B7A</color>
+</resources>
