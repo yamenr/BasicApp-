@@ -53,7 +53,7 @@ const buildBeatStates = (snippet: Snippet, steps: Record<number, CodeStep>, beat
   return states;
 };
 
-const stateAt = (frame: number, timing: SceneTiming, states: BeatState[]) => {
+const stateAt = (frame: number, timing: SceneTiming, states: BeatState[], visibleLines: number) => {
   const beat = beatAt(timing, frame);
   const start = timing.beatStarts[beat];
   const end = timing.beatStarts[beat + 1] ?? timing.durationInFrames;
@@ -72,9 +72,12 @@ const stateAt = (frame: number, timing: SceneTiming, states: BeatState[]) => {
     prev.highlights.every((line, i) => now.highlights[i] === line);
   const highlightAlpha = sameHighlights ? 1 : interpolate(frame - start, [0, 10], [0, 1], {extrapolateRight: 'clamp'});
 
-  const focus = now.highlights.length > 0
-    ? (Math.min(...now.highlights) + Math.max(...now.highlights)) / 2
-    : revealed - 1;
+  // Keep the highlighted lines in view. If they don't all fit, start at the first one.
+  const first = Math.min(...now.highlights);
+  const last = Math.max(...now.highlights);
+  const focus = now.highlights.length === 0 ? revealed - 1
+    : last - first < visibleLines - 2 ? (first + last) / 2
+    : first - 2 + visibleLines * 0.45;
 
   return {revealed, target: now.target, highlights: now.highlights, highlightAlpha, focus};
 };
@@ -107,13 +110,13 @@ export const CodePanel: React.FC<Props> = ({
   const headerHeight = 52;
   const visibleLines = Math.floor((height - headerHeight - 32) / lineHeight);
 
-  const now = stateAt(frame, timing, states);
+  const now = stateAt(frame, timing, states, visibleLines);
 
   // Scroll so the line we talk about stays in view (smoothed over a few frames),
   // but never past the last line this beat reveals
   let scroll = 0;
   for (let k = 0; k < SCROLL_SMOOTHING; k++) {
-    const s = stateAt(Math.max(0, frame - k), timing, states);
+    const s = stateAt(Math.max(0, frame - k), timing, states, visibleLines);
     const maxScroll = Math.max(0, s.target - visibleLines);
     scroll += Math.min(maxScroll, Math.max(0, s.focus - visibleLines * 0.45));
   }
