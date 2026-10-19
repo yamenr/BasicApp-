@@ -6,7 +6,7 @@ import {InfoCard, Mono} from '../components/Diagram';
 import {SceneFrame} from '../components/SceneFrame';
 import {snippet} from '../code/snippet';
 import {sources} from '../code/sources';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts, syntax} from '../theme';
 
 const code = snippet(sources.restaurant, 'public class Restaurant', '}');
@@ -29,11 +29,21 @@ const NOTES: {title: string; color: string; body: React.ReactNode}[] = [
   {title: 'Serializable', color: colors.pink, body: <>Lets us put a Restaurant inside a <Mono>Bundle</Mono> and send it to the edit dialog.</>},
 ];
 
+const NOTES_AR: typeof NOTES = [
+  {title: 'الـ model class', color: colors.blue, body: <>يصف شيئًا واحدًا في تطبيقنا: <b>مطعمًا</b>. كل كائن = مطعم واحد.</>},
+  {title: 'الحقول', color: colors.blue, body: <>كل حقل يقابل حقلًا في الـ document داخل Firestore.</>},
+  {title: 'قراءة document', color: colors.firebase, body: <>يستدعي Firestore الدالة <Mono>new Restaurant()</Mono>، ثم دوال الـ setter ليملأ الكائن.</>},
+  {title: 'إنشاء مطعم جديد', color: colors.android, body: <><Mono>new Restaurant(id, name, type, description, location, logoUrl)</Mono></>},
+  {title: 'دوال getter و setter', color: colors.purple, body: <><Mono>getName()</Mono> تقرأ القيمة.<br /><Mono>setName(…)</Mono> تغيّرها.</>},
+  {title: 'Serializable', color: colors.pink, body: <>يسمح لنا بوضع Restaurant داخل <Mono>Bundle</Mono> وإرساله إلى نافذة التعديل.</>},
+];
+
 export const Scene03Model: React.FC = () => {
   const frame = useCurrentFrame();
   const {beat, timing} = useBeat();
   const s = timing.beatStarts;
-  const note = NOTES[beat];
+  const t = useT();
+  const note = t(NOTES, NOTES_AR)[beat];
 
   return (
     <SceneFrame>
@@ -75,7 +85,7 @@ export const Scene03Model: React.FC = () => {
 
       <div style={{position: 'absolute', left: 1170, top: beat === 0 ? 0 : 400, width: 590}}>
         <div key={beat} style={{opacity: progress(frame, s[beat] + 4, 14)}}>
-          <InfoCard title={note.title} color={note.color}>
+          <InfoCard title={note.title} color={note.color} style={{direction: t('ltr', 'rtl')}}>
             {note.body}
           </InfoCard>
         </div>

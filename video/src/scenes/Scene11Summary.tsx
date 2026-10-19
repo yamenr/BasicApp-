@@ -2,14 +2,14 @@ import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import {Appear, progress} from '../components/anim';
 import {SceneFrame} from '../components/SceneFrame';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts} from '../theme';
 
 const POINTS = [
-  {text: 'Restaurant: a model class for Firestore', color: colors.blue},
-  {text: 'FirebaseServices: a lazy singleton', color: colors.firebase},
-  {text: 'One activity, three fragments, two dialogs', color: colors.android},
-  {text: 'Storage + Firestore + RecyclerView', color: colors.firebaseOrange},
+  {text: 'Restaurant: a model class for Firestore', textAr: 'Restaurant: كلاس model يعمل مع Firestore', color: colors.blue},
+  {text: 'FirebaseServices: a lazy singleton', textAr: 'FirebaseServices: الـ Lazy Singleton', color: colors.firebase},
+  {text: 'One activity, three fragments, two dialogs', textAr: 'Activity واحدة، وثلاثة Fragments، ونافذتان', color: colors.android},
+  {text: 'Storage + Firestore + RecyclerView', textAr: 'Storage و Firestore و RecyclerView', color: colors.firebaseOrange},
 ];
 
 const FILES = [
@@ -26,21 +26,23 @@ const FILES = [
 export const Scene11Summary: React.FC = () => {
   const frame = useCurrentFrame();
   const {timing} = useBeat();
+  const t = useT();
+  const dir = t('ltr', 'rtl');
   const s = timing.beatStarts;
   const last = s.length - 1;
 
   return (
     <SceneFrame>
       <Appear at={4} out={s[last]} from="up" style={{left: 0, top: 0, width: 1760}}>
-        <div style={{fontSize: 96, fontWeight: 800, letterSpacing: -2}}>
-          Great <span style={{color: colors.android}}>job!</span>
+        <div dir={dir} style={{fontSize: 96, fontWeight: 800}}>
+          {t(<>Great <span style={{color: colors.android}}>job!</span></>, <><span style={{color: colors.android}}>أحسنتم!</span></>)}
         </div>
       </Appear>
       {POINTS.map((point, i) => {
         const p = progress(frame, s[i + 1] ?? timing.durationInFrames, 14);
         return (
-          <Appear key={point.text} at={s[i + 1]} out={s[last]} from="left" style={{left: 0, top: 170 + i * 130, width: 1400}}>
-            <div style={{display: 'flex', alignItems: 'center', gap: 28}}>
+          <Appear key={point.text} at={s[i + 1]} out={s[last]} from="left" style={{left: 0, top: 170 + i * 130, width: 1760}}>
+            <div dir={dir} style={{display: 'flex', alignItems: 'center', gap: 28}}>
               <div
                 style={{
                   width: 72,
@@ -58,7 +60,7 @@ export const Scene11Summary: React.FC = () => {
               >
                 ✓
               </div>
-              <div style={{fontSize: 48, fontWeight: 700}}>{point.text}</div>
+              <div style={{fontSize: 48, fontWeight: 700}}>{t(point.text, point.textAr)}</div>
             </div>
           </Appear>
         );
@@ -66,23 +68,35 @@ export const Scene11Summary: React.FC = () => {
 
       {/* End screen: where the reference code is */}
       <Appear at={s[last]} from="scale" style={{left: 0, top: 0, width: 1760, height: 740}}>
-        <div style={{display: 'flex', gap: 60, alignItems: 'center', height: 740}}>
+        <div dir={dir} style={{display: 'flex', gap: 60, alignItems: 'center', height: 740}}>
           <div style={{flex: 1}}>
-            <div style={{fontSize: 30, color: colors.android, fontWeight: 800, letterSpacing: 3}}>REFERENCE CODE</div>
+            <div style={{fontSize: 30, color: colors.android, fontWeight: 800, letterSpacing: 3}}>{t('REFERENCE CODE', 'الكود المرجعي')}</div>
             <div style={{fontSize: 84, fontWeight: 800, lineHeight: 1.05, marginTop: 16}}>
-              Try it yourself!
+              {t('Try it yourself!', 'جرّبه بنفسك!')}
             </div>
             <div style={{fontSize: 34, color: colors.muted, marginTop: 30, lineHeight: 1.5}}>
-              1. Open <span style={{fontFamily: fonts.mono, color: colors.firebase}}>android-app</span> in Android Studio
-              <br />
-              2. Add your own <span style={{fontFamily: fonts.mono, color: colors.firebase}}>google-services.json</span>
-              <br />
-              3. Run it, then change it!
+              {t(
+                <>
+                  1. Open <span style={{fontFamily: fonts.mono, color: colors.firebase}}>android-app</span> in Android Studio
+                  <br />
+                  2. Add your own <span style={{fontFamily: fonts.mono, color: colors.firebase}}>google-services.json</span>
+                  <br />
+                  3. Run it, then change it!
+                </>,
+                <>
+                  1. افتح <span style={{fontFamily: fonts.mono, color: colors.firebase}}>android-app</span> في Android Studio
+                  <br />
+                  2. أضف ملف <span style={{fontFamily: fonts.mono, color: colors.firebase}}>google-services.json</span> الخاص بك
+                  <br />
+                  3. شغّله، ثم عدّل عليه!
+                </>,
+              )}
             </div>
           </div>
           <div
             style={{
               width: 700,
+              direction: 'ltr',
               background: colors.panel,
               border: `1px solid ${colors.border}`,
               borderRadius: 20,

@@ -15,7 +15,7 @@ import {Node} from '../components/Diagram';
 import {SceneFrame} from '../components/SceneFrame';
 import {snippet} from '../code/snippet';
 import {sources} from '../code/sources';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors} from '../theme';
 import {press, tap, within} from './helpers';
 
@@ -61,6 +61,7 @@ const usePhoneState = (swaps: Swap[]) => {
 
 export const Scene05MainActivity: React.FC = () => {
   const {beat, timing} = useBeat();
+  const t = useT();
   const s = timing.beatStarts;
   const end = timing.durationInFrames;
   const at = (b: number, f: number) => within(s, end, b, f);
@@ -119,7 +120,7 @@ export const Scene05MainActivity: React.FC = () => {
                   width={760}
                   height={150}
                   label={SCREEN_LABEL[screen]}
-                  sub={active ? 'in the container now' : 'waiting'}
+                  sub={active ? t('in the container now', 'داخل الحاوية الآن') : t('waiting', 'ينتظر')}
                   color={active ? colors.firebaseOrange : colors.border}
                   glow={active ? 0.6 : 0}
                   fontSize={36}
@@ -171,7 +172,7 @@ export const Scene05MainActivity: React.FC = () => {
       {beat === 0 && (
         <>
           <Appear at={s[0] + 30} from="right" style={{left: 1135, top: 130, whiteSpace: 'nowrap'}}>
-            <Label text="Buttons" color={colors.android} />
+            <Label text={t('Buttons', 'الأزرار')} color={colors.android} />
           </Appear>
           <Appear at={s[0] + 45} from="right" style={{left: 1080, top: 420, whiteSpace: 'nowrap'}}>
             <Label text="FrameLayout" color={colors.firebaseOrange} />
@@ -184,6 +185,6 @@ export const Scene05MainActivity: React.FC = () => {
 
 const Label: React.FC<{text: string; color: string}> = ({text, color}) => (
   <div style={{fontSize: 26, fontWeight: 700, color}}>
-    {text} →
+    {text} {'→'}
   </div>
 );

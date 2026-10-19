@@ -9,20 +9,23 @@
  *   npm run voice                 make the files that do not exist yet
  *   npm run voice -- --force      make all files again (overwrites!)
  *   npm run voice -- --scene 4    make (or remake) only scene 4
+ *   npm run voice -- --lang ar    the Arabic narration (public/audio/ar/), works with the options above
  *
  * Files you recorded yourself are never touched unless you use --force or --scene.
  */
 import 'dotenv/config';
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
-import {scenes} from '../src/script';
+import {Lang, scriptFor} from '../src/lang';
 
 // A standard ElevenLabs voice, used until you set VOICE_ID to your own cloned voice
 const PLACEHOLDER_VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
 const MODEL_ID = 'eleven_multilingual_v2';
-const AUDIO_DIR = path.join(__dirname, '..', 'public', 'audio');
-
 const args = process.argv.slice(2);
+const langArg = args.indexOf('--lang');
+const lang: Lang = langArg !== -1 && args[langArg + 1] === 'ar' ? 'ar' : 'en';
+const scenes = scriptFor(lang);
+const AUDIO_DIR = path.join(__dirname, '..', 'public', 'audio', ...(lang === 'en' ? [] : [lang]));
 const force = args.includes('--force');
 const sceneArg = args.indexOf('--scene');
 const onlyScene = sceneArg === -1 ? null : Number(args[sceneArg + 1]);

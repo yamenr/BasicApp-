@@ -15,7 +15,7 @@ import {
 } from '../components/AppUI';
 import {Appear, progress} from '../components/anim';
 import {SceneFrame} from '../components/SceneFrame';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts} from '../theme';
 import {press, tap, typed, within} from './helpers';
 
@@ -25,10 +25,12 @@ const NEW_LOCATION = 'Market Square';
 const ROW = 4;
 
 const USER_STEPS = ['Open the app', 'Tap “Add a restaurant”', 'Fill in the form, tap Add', 'See it in the list', 'Update the location', 'Delete it'];
+const USER_STEPS_AR = ['يفتح التطبيق', 'يضغط Add a restaurant', 'يملأ النموذج ويضغط Add', 'يراه في القائمة', 'يعدّل الموقع', 'يحذفه'];
 
 export const Scene10Demo: React.FC = () => {
   const frame = useCurrentFrame();
   const {beat, timing} = useBeat();
+  const tr = useT();
   const s = timing.beatStarts;
   const end = timing.durationInFrames;
   const at = (b: number, f: number) => within(s, end, b, f);
@@ -97,19 +99,21 @@ export const Scene10Demo: React.FC = () => {
     <SceneFrame>
       {/* Left: what the user does */}
       <div style={{position: 'absolute', left: 0, top: 20, width: 560}}>
-        <div style={{fontSize: 26, color: colors.muted, fontWeight: 700, letterSpacing: 2, marginBottom: 20}}>THE USER</div>
-        {USER_STEPS.map((step, i) => {
+        <div style={{fontSize: 26, color: colors.muted, fontWeight: 700, letterSpacing: 2, marginBottom: 20}} dir={tr('ltr', 'rtl')}>{tr('THE USER', 'المستخدم')}</div>
+        {tr(USER_STEPS, USER_STEPS_AR).map((step, i) => {
           const shown = progress(frame, s[i] ?? end, 12);
           const active = beat === i;
           return (
             <div
               key={step}
+              dir={tr('ltr', 'rtl')}
               style={{
                 opacity: shown * (active ? 1 : 0.5),
                 fontSize: 30,
                 fontWeight: active ? 800 : 600,
-                padding: '14px 0 14px 20px',
-                borderLeft: `5px solid ${active ? colors.android : colors.border}`,
+                paddingBlock: 14,
+                paddingInlineStart: 20,
+                borderInlineStart: `5px solid ${active ? colors.android : colors.border}`,
                 marginBottom: 8,
               }}
             >

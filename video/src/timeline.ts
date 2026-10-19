@@ -1,16 +1,17 @@
 import {createContext, useContext} from 'react';
 import {getStaticFiles, staticFile, useCurrentFrame} from 'remotion';
 import {getAudioDurationInSeconds} from '@remotion/media-utils';
-import {scenes} from './script';
+import {Lang, scriptFor} from './lang';
 import {VIDEO} from './config';
 
 // Frames of silence before the narration starts, and after it ends, in every scene
 export const LEAD_IN_FRAMES = 12;
 export const TAIL_FRAMES = 30;
-// Speaking speed used when a scene has no audio file yet (about 155 words per minute)
-export const WORDS_PER_SECOND = 2.6;
+// Speaking speed used when a scene has no audio file yet (English: about 155 words per minute)
+export const WORDS_PER_SECOND: Record<Lang, number> = {en: 2.6, ar: 2.0};
 
 export type SceneTiming = {
+  lang: Lang;
   index: number;
   id: string;
   durationInFrames: number;
@@ -22,16 +23,17 @@ export type SceneTiming = {
 
 export const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
-export const audioFileFor = (index: number) =>
-  `audio/scene${String(index + 1).padStart(2, '0')}.mp3`;
+// English audio is in public/audio, Arabic audio in public/audio/ar
+export const audioFileFor = (index: number, lang: Lang = 'en') =>
+  `audio/${lang === 'en' ? '' : `${lang}/`}scene${String(index + 1).padStart(2, '0')}.mp3`;
 
-export const estimateSeconds = (index: number) =>
-  scenes[index].beats.reduce((sum, beat) => sum + countWords(beat.say), 0) / WORDS_PER_SECOND;
+export const estimateSeconds = (index: number, lang: Lang = 'en') =>
+  scriptFor(lang)[index].beats.reduce((sum, beat) => sum + countWords(beat.say), 0) / WORDS_PER_SECOND[lang];
 
 // Builds every scene's length and beat times from the audio lengths (null = no audio)
-export const buildTimeline = (audioSeconds: (number | null)[]): SceneTiming[] =>
-  scenes.map((scene, index) => {
-    const seconds = audioSeconds[index] ?? estimateSeconds(index);
+export const buildTimeline = (audioSeconds: (number | null)[], lang: Lang = 'en'): SceneTiming[] =>
+  scriptFor(lang).map((scene, index) => {
+    const seconds = audioSeconds[index] ?? estimateSeconds(index, lang);
     const narrationFrames = Math.ceil(seconds * VIDEO.fps);
     const words = scene.beats.map((beat) => countWords(beat.say));
     const totalWords = words.reduce((a, b) => a + b, 0);
@@ -44,10 +46,11 @@ export const buildTimeline = (audioSeconds: (number | null)[]): SceneTiming[] =>
     });
 
     return {
+      lang,
       index,
       id: scene.id,
       durationInFrames: LEAD_IN_FRAMES + narrationFrames + TAIL_FRAMES,
-      audio: audioSeconds[index] === null ? null : audioFileFor(index),
+      audio: audioSeconds[index] === null ? null : audioFileFor(index, lang),
       beatStarts,
     };
   });
@@ -65,9 +68,11 @@ const readAudioSeconds = async (path: string): Promise<number | null> => {
   }
 };
 
-export const loadTimeline = async () => {
-  const seconds = await Promise.all(scenes.map((_, index) => readAudioSeconds(audioFileFor(index))));
-  return buildTimeline(seconds);
+export const loadTimeline = async (lang: Lang = 'en') => {
+  const seconds = await Promise.all(
+    scriptFor(lang).map((_, index) => readAudioSeconds(audioFileFor(index, lang))),
+  );
+  return buildTimeline(seconds, lang);
 };
 
 export const SceneTimingContext = createContext<SceneTiming | null>(null);
@@ -96,4 +101,10 @@ export const useBeat = () => {
   const start = timing.beatStarts[beat];
   const end = timing.beatStarts[beat + 1] ?? timing.durationInFrames;
   return {beat, frame, start, end, since: frame - start, length: end - start, timing};
+};
+
+// Picks the English or Arabic version of an on-screen text, for the scene's language
+export const useT = () => {
+  const {lang} = useSceneTiming();
+  return <T,>(en: T, ar: T): T => (lang === 'ar' ? ar : en);
 };

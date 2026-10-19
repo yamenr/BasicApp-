@@ -4,7 +4,7 @@
 
 Total length: **9:12** · 11 scenes · 1402 words
 
-All timings come from the audio files in `video/public/audio`.
+All timings come from the audio files in `video/public/audio/`.
 
 **Recording tips:** record one file per scene (`scene01.mp3`, `scene02.mp3`, ...) and read the lines in order (the *On screen* captions are not read). Speak slowly and clearly. Leave a short pause between lines. The video stretches each scene to fit your recording.
 

@@ -1,6 +1,7 @@
 # Tutorial video (Remotion)
 
 A 1920×1080, 30 fps video, about 9–10 minutes long, that teaches how to build the app in `../android-app`.
+It comes in two languages: **English** (`Tutorial`) and **Arabic** (`Tutorial-Arabic`). Both use the same scenes and code; only the narration and on-screen text change.
 It is made with [Remotion](https://www.remotion.dev): every scene is a React component, so you change the video by changing code.
 
 ## Preview and render
@@ -14,13 +15,15 @@ npm install
 npx remotion studio          # preview in the browser (same as: npm run dev)
 npx remotion render          # render; Remotion asks which composition (pick "Tutorial")
 npm run render               # render Tutorial straight to out/tutorial.mp4
+npm run render:ar            # render Tutorial-Arabic to out/tutorial-ar.mp4
 ```
 
-In the studio you can play the whole video (**Tutorial**) or one scene at a time (the **Scenes** folder).
+In the studio you can play the whole video (**Tutorial** or **Tutorial-Arabic**) or one scene at a time (the **Scenes** and **Scenes-Arabic** folders).
 
 ## The voice
 
-Each scene has one audio file: `public/audio/scene01.mp3` to `scene11.mp3`.
+Each scene has one audio file: `public/audio/scene01.mp3` to `scene11.mp3` for English, and `public/audio/ar/scene01.mp3` to `scene11.mp3` for Arabic.
+Add `--lang ar` to `npm run voice` or `npm run script` for the Arabic version (`../script.ar.md`).
 **The length of each scene follows its audio file.** If a scene has no audio yet, the video uses an estimate from the number of words, with no sound. That is how the first draft works.
 
 ### Option 1: record it yourself
@@ -44,7 +47,8 @@ After adding audio, run `npm run script` again to update the timings in `script.
 
 | I want to change… | Edit |
 | --- | --- |
-| What is said, or the captions | `src/script.ts` (then `npm run script`, and `npm run voice` if you use ElevenLabs) |
+| What is said, or the captions | `src/script.ts` (English) or `src/script.ar.ts` (Arabic), then `npm run script` and `npm run voice` (add `-- --lang ar` for Arabic) |
+| Other on-screen text | the scene file: each text is written as `t('English', 'عربي')` |
 | The picture in a scene | `src/scenes/SceneNN….tsx` |
 | Colours and fonts | `src/theme.ts` |
 | The code shown on screen | the real files in `../android-app` (see below) |

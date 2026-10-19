@@ -7,7 +7,7 @@ import {Arrow, Node} from '../components/Diagram';
 import {SceneFrame} from '../components/SceneFrame';
 import {snippet} from '../code/snippet';
 import {sources} from '../code/sources';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts} from '../theme';
 import {press, tap, typed, within} from './helpers';
 
@@ -17,23 +17,24 @@ const LOGO = {name: 'Taco Fiesta', color: '#D1495B'};
 
 // The parts of the Add layout, pointed at in beat 0 (y is in stage pixels)
 const PARTS = [
-  {y: 238, text: 'ivLogo', sub: 'ImageView: tap to pick a logo', color: colors.pink},
-  {y: 392, text: 'etName, etType, etDescription, etLocation', sub: 'EditText: the four text fields', color: colors.blue},
-  {y: 517, text: 'btnAdd', sub: 'Button: saves the restaurant', color: colors.android},
+  {y: 238, text: 'ivLogo', sub: 'ImageView: tap to pick a logo', subAr: 'ImageView: اضغط لاختيار شعار', color: colors.pink},
+  {y: 392, text: 'etName, etType, etDescription, etLocation', sub: 'EditText: the four text fields', subAr: 'EditText: الحقول النصية الأربعة', color: colors.blue},
+  {y: 517, text: 'btnAdd', sub: 'Button: saves the restaurant', subAr: 'Button: يحفظ المطعم', color: colors.android},
 ];
 
 // The steps of addRestaurant(), shown on the right in beats 5-9
 const FLOW = [
-  {beat: 5, label: 'New document', sub: 'gives us a unique id', color: colors.firebaseOrange},
-  {beat: 6, label: 'logos/<id>.jpg', sub: 'the logo file name in Storage', color: colors.firebase},
-  {beat: 7, label: '1 putFile()  2 getDownloadUrl()', sub: 'upload, then get the image link', color: colors.firebase},
-  {beat: 8, label: '3 set(restaurant)', sub: 'save it in Firestore', color: colors.firebaseOrange},
-  {beat: 9, label: '4 Toast + Show screen', sub: 'or showError() if it fails', color: colors.android},
+  {beat: 5, label: 'New document', sub: 'gives us a unique id', subAr: 'يعطينا id فريدًا', color: colors.firebaseOrange},
+  {beat: 6, label: 'logos/<id>.jpg', sub: 'the logo file name in Storage', subAr: 'اسم ملف الشعار في Storage', color: colors.firebase},
+  {beat: 7, label: '1 putFile()  2 getDownloadUrl()', sub: 'upload, then get the image link', subAr: 'نرفع الصورة، ثم نأخذ رابطها', color: colors.firebase},
+  {beat: 8, label: '3 set(restaurant)', sub: 'save it in Firestore', subAr: 'نحفظه في Firestore', color: colors.firebaseOrange},
+  {beat: 9, label: '4 Toast + Show screen', sub: 'or showError() if it fails', subAr: 'أو showError() إذا فشل', color: colors.android},
 ];
 
 export const Scene06AddFragment: React.FC = () => {
   const frame = useCurrentFrame();
   const {beat, timing} = useBeat();
+  const t = useT();
   const s = timing.beatStarts;
   const end = timing.durationInFrames;
   const at = (b: number, f: number) => within(s, end, b, f);
@@ -72,7 +73,7 @@ export const Scene06AddFragment: React.FC = () => {
           <Arrow x1={880} y1={part.y} x2={765} y2={part.y} amount={beat === 0 ? progress(frame, 30 + i * 30, 14) : 0} color={part.color} />
           <Appear at={36 + i * 30} out={s[1]} from="right" style={{left: 900, top: part.y - 42}}>
             <div style={{fontFamily: fonts.mono, fontSize: 30, fontWeight: 700, color: part.color}}>{part.text}</div>
-            <div style={{fontSize: 26, color: colors.muted, marginTop: 4}}>{part.sub}</div>
+            <div style={{fontSize: 26, color: colors.muted, marginTop: 4, direction: t('ltr', 'rtl')}}>{t(part.sub, part.subAr)}</div>
           </Appear>
         </React.Fragment>
       ))}
@@ -120,7 +121,7 @@ export const Scene06AddFragment: React.FC = () => {
       </Appear>
       {beat === 2 && frame >= logoTap && frame < logoTap + 30 && (
         <Appear at={logoTap} style={{left: 1300, top: -40, fontSize: 24, color: colors.muted}}>
-          Gallery opens… image picked
+          {t('Gallery opens… image picked', 'يُفتح المعرض… تم اختيار الصورة')}
         </Appear>
       )}
 
@@ -137,7 +138,7 @@ export const Scene06AddFragment: React.FC = () => {
               width={590}
               height={110}
               label={step.label}
-              sub={step.sub}
+              sub={t(step.sub, step.subAr)}
               color={done ? colors.android : active ? step.color : colors.border}
               glow={active ? 0.6 : 0}
               alpha={progress(frame, s[step.beat] ?? end, 12)}

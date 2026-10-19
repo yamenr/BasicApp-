@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {scenes} from '../script';
+import {scriptFor} from '../lang';
 import {useBeat} from '../timeline';
 import {colors, fonts} from '../theme';
 import {progress} from './anim';
@@ -10,7 +10,7 @@ export const STAGE = {left: 80, top: 160, width: 1760, height: 740};
 
 const Caption: React.FC = () => {
   const {beat, since, timing} = useBeat();
-  const caption = scenes[timing.index].beats[beat].caption;
+  const caption = scriptFor(timing.lang)[timing.index].beats[beat].caption;
   const p = progress(since, 0, 10);
   return (
     <div
@@ -25,6 +25,7 @@ const Caption: React.FC = () => {
     >
       <div
         key={beat}
+        dir={timing.lang === 'ar' ? 'rtl' : 'ltr'}
         style={{
           opacity: p,
           transform: `translateY(${(1 - p) * 16}px)`,
@@ -51,7 +52,9 @@ const Caption: React.FC = () => {
 export const SceneFrame: React.FC<{children: React.ReactNode}> = ({children}) => {
   const frame = useCurrentFrame();
   const {timing} = useBeat();
-  const scene = scenes[timing.index];
+  const scene = scriptFor(timing.lang)[timing.index];
+  // In Arabic the title sits on the right and reads right to left
+  const rtl = timing.lang === 'ar';
   const fade = Math.min(
     interpolate(frame, [0, 10], [0, 1], {extrapolateRight: 'clamp'}),
     interpolate(frame, [timing.durationInFrames - 10, timing.durationInFrames], [1, 0], {extrapolateLeft: 'clamp'}),
@@ -77,14 +80,15 @@ export const SceneFrame: React.FC<{children: React.ReactNode}> = ({children}) =>
         <div
           style={{
             position: 'absolute',
-            left: 80,
+            [rtl ? 'right' : 'left']: 80,
             top: 52,
             display: 'flex',
             alignItems: 'center',
             gap: 24,
             opacity: titleP,
-            transform: `translateX(${(1 - titleP) * -30}px)`,
+            transform: `translateX(${(1 - titleP) * (rtl ? 30 : -30)}px)`,
           }}
+          dir={rtl ? 'rtl' : 'ltr'}
         >
           <div
             style={{
@@ -104,7 +108,7 @@ export const SceneFrame: React.FC<{children: React.ReactNode}> = ({children}) =>
         <div
           style={{
             position: 'absolute',
-            right: 80,
+            [rtl ? 'left' : 'right']: 80,
             top: 66,
             fontSize: 24,
             color: colors.muted,

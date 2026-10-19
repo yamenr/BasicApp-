@@ -135,5 +135,6 @@ export const InfoCard: React.FC<{
 );
 
 export const Mono: React.FC<{children: React.ReactNode; color?: string}> = ({children, color = colors.firebase}) => (
-  <span style={{fontFamily: fonts.mono, color, fontWeight: 600}}>{children}</span>
+  // Code always reads left to right, even inside Arabic text
+  <span style={{fontFamily: fonts.mono, color, fontWeight: 600, direction: 'ltr', unicodeBidi: 'isolate'}}>{children}</span>
 );

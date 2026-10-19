@@ -7,6 +7,10 @@ import inter800 from '@fontsource/inter/files/inter-latin-800-normal.woff2';
 import mono400 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2';
 import mono600 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2';
 import mono700 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-700-normal.woff2';
+import arabic400 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2';
+import arabic500 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-500-normal.woff2';
+import arabic600 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-600-normal.woff2';
+import arabic700 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-700-normal.woff2';
 
 // Fonts are bundled from npm, so rendering works without an internet connection
 const fontFiles: [string, string, string][] = [
@@ -18,13 +22,19 @@ const fontFiles: [string, string, string][] = [
   ['JetBrains Mono', mono400, '400'],
   ['JetBrains Mono', mono600, '600'],
   ['JetBrains Mono', mono700, '700'],
+  ['IBM Plex Sans Arabic', arabic400, '400'],
+  ['IBM Plex Sans Arabic', arabic500, '500'],
+  ['IBM Plex Sans Arabic', arabic600, '600'],
+  ['IBM Plex Sans Arabic', arabic700, '700'],
+  ['IBM Plex Sans Arabic', arabic700, '800'],
 ];
 fontFiles.forEach(([family, url, weight]) => {
   loadFont({family, url, weight});
 });
 
 export const fonts = {
-  sans: 'Inter, sans-serif',
+  // Arabic letters fall back to IBM Plex Sans Arabic
+  sans: 'Inter, "IBM Plex Sans Arabic", sans-serif',
   mono: '"JetBrains Mono", monospace',
 };
 

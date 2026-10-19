@@ -6,7 +6,7 @@ import {Arrow, InfoCard, Mono, Node} from '../components/Diagram';
 import {SceneFrame} from '../components/SceneFrame';
 import {snippet} from '../code/snippet';
 import {sources} from '../code/sources';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts, syntax} from '../theme';
 import {within} from './helpers';
 
@@ -17,7 +17,7 @@ const SCREENS = [
   {label: 'AddRestaurantFragment', x: 40, y: 40},
   {label: 'ShowRestaurantsFragment', x: 40, y: 560},
   {label: 'EditRestaurantDialog', x: 1260, y: 40},
-  {label: 'Your next screen…', x: 1260, y: 560, dashed: true},
+  {label: 'Your next screen…', labelAr: 'شاشتك التالية…', x: 1260, y: 560, dashed: true},
 ];
 const CARD = {width: 460, height: 110};
 const CENTER = {x: 880, y: 370, width: 440, height: 160};
@@ -28,6 +28,7 @@ const cardCenter = (i: number) => ({x: SCREENS[i].x + CARD.width / 2, y: SCREENS
 // The animation shown in beats 0-2 and 8
 const SingletonDiagram: React.FC = () => {
   const frame = useCurrentFrame();
+  const t = useT();
   const {beat, timing} = useBeat();
   const s = timing.beatStarts;
   const end = timing.durationInFrames;
@@ -71,7 +72,7 @@ const SingletonDiagram: React.FC = () => {
               y={screen.y}
               width={CARD.width}
               height={CARD.height}
-              label={screen.label}
+              label={screen.labelAr ? t(screen.label, screen.labelAr) : screen.label}
               color={colors.blue}
               dashed={screen.dashed}
               fontSize={28}
@@ -114,8 +115,8 @@ const SingletonDiagram: React.FC = () => {
 
       {beat === 0 && (
         <Appear at={s[0] + 40} style={{left: 560, top: 300, width: 640, textAlign: 'center'}}>
-          <div style={{fontSize: 40, fontWeight: 800, color: colors.red}}>4 screens × 3 objects</div>
-          <div style={{fontSize: 30, color: colors.muted, marginTop: 10}}>= 12 copies of the same thing</div>
+          <div style={{fontSize: 40, fontWeight: 800, color: colors.red}}>{t('4 screens × 3 objects', '4 شاشات × 3 كائنات')}</div>
+          <div style={{fontSize: 30, color: colors.muted, marginTop: 10}}>{t('= 12 copies of the same thing', '= 12 نسخة من الشيء نفسه')}</div>
         </Appear>
       )}
 
@@ -129,7 +130,7 @@ const SingletonDiagram: React.FC = () => {
               width={CENTER.width}
               height={CENTER.height}
               label="instance = null"
-              sub="nothing created yet"
+              sub={t('nothing created yet', 'لم يُنشأ شيء بعد')}
               color={colors.faint}
               dashed
               mono
@@ -142,7 +143,7 @@ const SingletonDiagram: React.FC = () => {
             width={CENTER.width}
             height={CENTER.height}
             label="FirebaseServices"
-            sub={isLazyBeat ? 'created on the first call' : 'the ONE shared instance'}
+            sub={isLazyBeat ? t('created on the first call', 'يُنشأ عند أول استدعاء') : t('the ONE shared instance', 'الكائن الوحيد المشترك')}
             color={colors.firebase}
             alpha={Math.min(progress(frame, s[1] + 14, 14), created)}
             glow={beat === lastBeat ? 0.6 + 0.4 * Math.sin(pulse * Math.PI * 2) : 0.5}
@@ -154,12 +155,15 @@ const SingletonDiagram: React.FC = () => {
       {isLazyBeat && frame >= lazyCall && (
         <Appear at={lazyCall} style={{left: CENTER.x - 330, top: CENTER.y + 110, width: 660, textAlign: 'center', fontSize: 30}}>
           <Mono>FirebaseServices.getInstance()</Mono>
-          <span style={{fontSize: 26, color: colors.muted}}> ← first call</span>
+          <span style={{fontSize: 26, color: colors.muted}}> {t('← first call', '← أول استدعاء')}</span>
         </Appear>
       )}
       {beat === lastBeat && (
         <Appear at={s[lastBeat] + 10} style={{left: CENTER.x - 330, top: CENTER.y + 110, width: 660, textAlign: 'center', fontSize: 30, color: colors.muted}}>
-          Every <Mono>getInstance()</Mono> returns the same object
+          {t(
+            <>Every <Mono>getInstance()</Mono> returns the same object</>,
+            <span dir="rtl">كل استدعاء لـ <Mono>getInstance()</Mono> يُرجع الكائن نفسه</span>,
+          )}
         </Appear>
       )}
     </>
@@ -188,6 +192,8 @@ const StateCard: React.FC = () => {
   const {beat, timing} = useBeat();
   const s = timing.beatStarts;
   const created = beat >= 6 ? progress(frame, s[6] + 30, 14) : 0;
+  const t = useT();
+  const rtl = {direction: t('ltr', 'rtl')} as const;
 
   return (
     <div style={{width: 590}}>
@@ -201,7 +207,7 @@ const StateCard: React.FC = () => {
           fontSize: 28,
         }}
       >
-        <div style={{color: colors.muted, fontSize: 22, marginBottom: 10, fontFamily: fonts.sans}}>Right now in memory</div>
+        <div style={{color: colors.muted, fontSize: 22, marginBottom: 10, fontFamily: fonts.sans}}>{t('Right now in memory', 'الآن في الذاكرة')}</div>
         <span style={{color: colors.blue}}>instance</span> ={' '}
         <span style={{color: created > 0.5 ? colors.android : syntax.number}}>
           {created > 0.5 ? 'FirebaseServices@1' : 'null'}
@@ -210,32 +216,35 @@ const StateCard: React.FC = () => {
       <div style={{marginTop: 26}} key={beat}>
         <div style={{opacity: progress(frame, s[beat] + 4, 14)}}>
           {beat === 3 && (
-            <InfoCard title="static" color={colors.purple}>
-              The field belongs to the <b>class</b>, not to one object. So there is only one <Mono>instance</Mono> field for the whole app.
+            <InfoCard title="static" color={colors.purple} style={rtl}>
+              {t(
+                <>The field belongs to the <b>class</b>, not to one object. So there is only one <Mono>instance</Mono> field for the whole app.</>,
+                <>الحقل يتبع <b>الكلاس</b> نفسه، وليس كائنًا واحدًا. لذلك يوجد حقل <Mono>instance</Mono> واحد فقط في التطبيق كله.</>,
+              )}
             </InfoCard>
           )}
           {beat === 4 && (
-            <InfoCard title="The Firebase tools" color={colors.firebaseOrange}>
-              <Mono>auth</Mono> → sign in<br />
-              <Mono>db</Mono> → Firestore database<br />
-              <Mono>storage</Mono> → files and images
+            <InfoCard title={t('The Firebase tools', 'أدوات Firebase')} color={colors.firebaseOrange} style={rtl}>
+              <Mono>auth</Mono> {t('→ sign in', '← تسجيل الدخول')}<br />
+              <Mono>db</Mono> {t('→ Firestore database', '← قاعدة بيانات Firestore')}<br />
+              <Mono>storage</Mono> {t('→ files and images', '← الملفات والصور')}
             </InfoCard>
           )}
           {beat === 5 && (
-            <InfoCard title="Private constructor" color={colors.red}>
-              In another class:<br />
+            <InfoCard title={t('Private constructor', 'constructor من نوع private')} color={colors.red} style={rtl}>
+              {t('In another class:', 'في كلاس آخر:')}<br />
               <Mono color={colors.red}>new FirebaseServices()</Mono> ✗<br />
-              The compiler will not allow it.
+              {t('The compiler will not allow it.', 'المترجم (compiler) لن يسمح بذلك.')}
             </InfoCard>
           )}
           {beat === 6 && (
-            <InfoCard title="getInstance()" color={colors.android}>
-              1st call: instance is null → create it.<br />
-              Every other call: return the same one.
+            <InfoCard title="getInstance()" color={colors.android} style={rtl}>
+              {t('1st call: instance is null → create it.', 'أول استدعاء: instance قيمته null ← ننشئه.')}<br />
+              {t('Every other call: return the same one.', 'كل استدعاء بعده: نُرجع الكائن نفسه.')}
             </InfoCard>
           )}
           {beat === 7 && (
-            <InfoCard title="Using it" color={colors.blue}>
+            <InfoCard title={t('Using it', 'طريقة الاستخدام')} color={colors.blue}>
               <Mono>fbs = FirebaseServices.getInstance();</Mono>
               <br />
               <Mono>fbs.getDb().collection("restaurants")</Mono>

@@ -6,16 +6,16 @@ import {Mono} from '../components/Diagram';
 import {SceneFrame} from '../components/SceneFrame';
 import {snippet} from '../code/snippet';
 import {sources} from '../code/sources';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts} from '../theme';
 import {typed, within} from './helpers';
 
-const STEPS = [
-  'Create a Firebase project',
-  'Add an Android app',
-  'Add google-services.json',
-  'Turn on Firestore + Storage',
-  'Add the libraries',
+const STEPS: [string, string][] = [
+  ['Create a Firebase project', 'أنشئ مشروع Firebase'],
+  ['Add an Android app', 'أضف تطبيق Android'],
+  ['Add google-services.json', 'أضف google-services.json'],
+  ['Turn on Firestore + Storage', 'فعّل Firestore و Storage'],
+  ['Add the libraries', 'أضف المكتبات'],
 ];
 
 const gradle = snippet(sources.appBuildGradle, 'dependencies {', '}');
@@ -74,7 +74,9 @@ const Product: React.FC<{name: string; text: string; color: string}> = ({name, t
   </div>
 );
 
-const Toggle: React.FC<{name: string; on: number}> = ({name, on}) => (
+const Toggle: React.FC<{name: string; on: number}> = ({name, on}) => {
+  const t = useT();
+  return (
   <div
     style={{
       display: 'flex',
@@ -90,7 +92,7 @@ const Toggle: React.FC<{name: string; on: number}> = ({name, on}) => (
     <div>
       <div style={{fontSize: 36, fontWeight: 800}}>{name}</div>
       <div style={{fontSize: 26, color: on > 0.5 ? colors.android : colors.muted, marginTop: 6}}>
-        {on > 0.5 ? 'Enabled · test mode' : 'Not enabled'}
+        {on > 0.5 ? t('Enabled · test mode', 'مفعّل · test mode') : t('Not enabled', 'غير مفعّل')}
       </div>
     </div>
     <div style={{width: 96, height: 52, borderRadius: 26, background: on > 0.5 ? colors.android : colors.border, position: 'relative'}}>
@@ -107,19 +109,22 @@ const Toggle: React.FC<{name: string; on: number}> = ({name, on}) => (
       />
     </div>
   </div>
-);
+  );
+};
 
 export const Scene02FirebaseSetup: React.FC = () => {
   const frame = useCurrentFrame();
   const {beat, timing} = useBeat();
   const s = timing.beatStarts;
   const end = timing.durationInFrames;
+  const t = useT();
 
   return (
     <SceneFrame>
       {/* Left: the checklist of steps */}
       <div style={{position: 'absolute', left: 0, top: 10, width: 640}}>
-        {STEPS.map((step, i) => {
+        {STEPS.map(([stepEn, stepAr], i) => {
+          const step = t(stepEn, stepAr);
           const stepBeat = i + 1;
           const shown = progress(frame, s[stepBeat] ?? end, 14);
           const active = beat === stepBeat;
@@ -128,6 +133,7 @@ export const Scene02FirebaseSetup: React.FC = () => {
           return (
             <div
               key={step}
+              dir={t('ltr', 'rtl')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -166,13 +172,16 @@ export const Scene02FirebaseSetup: React.FC = () => {
 
       {/* Beat 0: what Firebase is */}
       <Appear at={0} out={s[1]} style={{left: 0, top: 40, width: 1760}}>
-        <div style={{fontSize: 64, fontWeight: 800, marginBottom: 40}}>
-          <span style={{color: colors.firebase}}>Firebase</span> gives our app a backend in the cloud
+        <div dir={t('ltr', 'rtl')} style={{fontSize: 64, fontWeight: 800, marginBottom: 40}}>
+          {t(
+            <><span style={{color: colors.firebase}}>Firebase</span> gives our app a backend in the cloud</>,
+            <><span style={{color: colors.firebase}}>Firebase</span> يعطي تطبيقنا خادمًا على الإنترنت</>,
+          )}
         </div>
-        <div style={{display: 'flex', gap: 30}}>
-          <Product name="Firestore" text="A database that stores our restaurants as documents." color={colors.firebaseOrange} />
-          <Product name="Storage" text="Stores files, like the restaurant logos." color={colors.firebase} />
-          <Product name="Authentication" text="Signs users in (ready for later)." color={colors.blue} />
+        <div dir={t('ltr', 'rtl')} style={{display: 'flex', gap: 30}}>
+          <Product name="Firestore" text={t('A database that stores our restaurants as documents.', 'قاعدة بيانات تحفظ المطاعم على شكل documents')} color={colors.firebaseOrange} />
+          <Product name="Storage" text={t('Stores files, like the restaurant logos.', 'تحفظ الملفات، مثل شعارات المطاعم.')} color={colors.firebase} />
+          <Product name="Authentication" text={t('Signs users in (ready for later).', 'لتسجيل دخول المستخدمين (جاهزة لاحقًا).')} color={colors.blue} />
         </div>
       </Appear>
 
@@ -244,7 +253,7 @@ export const Scene02FirebaseSetup: React.FC = () => {
             {typed('com.example.restaurantadmin', frame, within(s, end, 2, 0.4), within(s, end, 2, 0.85))}
           </div>
           <div style={{fontSize: 22, color: '#5F6B7A', marginTop: 16}}>
-            It must match <b>applicationId</b> in app/build.gradle
+            {t(<>It must match <b>applicationId</b> in app/build.gradle</>, <span dir="rtl">يجب أن يطابق <b>applicationId</b> في app/build.gradle</span>)}
           </div>
         </Browser>
       </Appear>
@@ -277,7 +286,7 @@ export const Scene02FirebaseSetup: React.FC = () => {
                 >
                   {row.name}
                 </span>
-                {row.hot && hot > 0.9 && <span style={{color: colors.android, fontSize: 26}}>← put it here</span>}
+                {row.hot && hot > 0.9 && <span style={{color: colors.android, fontSize: 26, fontFamily: fonts.sans}}>{t('← put it here', '← ضعه هنا')}</span>}
               </div>
             );
           })}
@@ -299,8 +308,12 @@ export const Scene02FirebaseSetup: React.FC = () => {
             opacity: progress(frame, within(s, end, 4, 0.6)),
           }}
         >
-          Test mode lets <b>anyone</b> read and write. Use it only while you learn.
-          The rules are in <Mono>android-app/README.md</Mono>.
+          {t(
+            <>Test mode lets <b>anyone</b> read and write. Use it only while you learn.
+            The rules are in <Mono>android-app/README.md</Mono>.</>,
+            <span dir="rtl" style={{display: 'block'}}>وضع test mode يسمح <b>لأي شخص</b> بالقراءة والكتابة. استخدمه فقط أثناء التعلّم.
+            القواعد موجودة في <Mono>android-app/README.md</Mono>.</span>,
+          )}
         </div>
       </Appear>
 

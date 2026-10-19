@@ -7,7 +7,7 @@ import {InfoCard, Mono} from '../components/Diagram';
 import {SceneFrame} from '../components/SceneFrame';
 import {snippet} from '../code/snippet';
 import {sources} from '../code/sources';
-import {useBeat} from '../timeline';
+import {useBeat, useT} from '../timeline';
 import {colors, fonts} from '../theme';
 
 const adapter = snippet(sources.restaurantAdapter, 'public class RestaurantAdapter', '}');
@@ -23,6 +23,7 @@ const MORE_RESTAURANTS = [
 // Beat 1: five row objects are reused while the list scrolls
 const RecycleDemo: React.FC<{start: number; length: number}> = ({start, length}) => {
   const frame = useCurrentFrame();
+  const t = useT();
   const ROW = 120;
   const SLOTS = 5;
   const offset = interpolate(frame, [start + 20, start + length - 10], [0, ROW * 9], {
@@ -47,7 +48,7 @@ const RecycleDemo: React.FC<{start: number; length: number}> = ({start, length})
         }}
       />
       <div style={{position: 'absolute', left: 0, top: WINDOW.top + WINDOW.height + 16, width: 560, textAlign: 'center', fontSize: 24, color: colors.android, fontWeight: 600}}>
-        the screen
+        {t('the screen', 'الشاشة')}
       </div>
       {Array.from({length: SLOTS}).map((_, slot) => {
         // Each slot is one row object. When it scrolls off the top, it moves to the bottom.
@@ -79,7 +80,10 @@ const RecycleDemo: React.FC<{start: number; length: number}> = ({start, length})
                 opacity: visible,
               }}
             >
-              row object #{slot + 1} → {data.name}
+              <span dir={t('ltr', 'rtl')}>
+                {t(`row object #${slot + 1} → `, `كائن الصف رقم ${slot + 1} ← `)}
+                <span style={{direction: 'ltr', unicodeBidi: 'isolate'}}>{data.name}</span>
+              </span>
             </div>
           </React.Fragment>
         );
@@ -90,7 +94,7 @@ const RecycleDemo: React.FC<{start: number; length: number}> = ({start, length})
 
 const Part: React.FC<{title: string; text: React.ReactNode; color: string; x: number; at: number}> = ({title, text, color, x, at}) => (
   <Appear at={at} style={{left: x, top: 120, width: 540}}>
-    <InfoCard title={title} color={color} style={{height: 380}}>
+    <InfoCard title={title} color={color} style={{height: 380, direction: useT()('ltr', 'rtl')}}>
       {text}
     </InfoCard>
   </Appear>
@@ -99,6 +103,7 @@ const Part: React.FC<{title: string; text: React.ReactNode; color: string; x: nu
 export const Scene07ShowFragment: React.FC = () => {
   const frame = useCurrentFrame();
   const {beat, timing} = useBeat();
+  const t = useT();
   const s = timing.beatStarts;
   const end = timing.durationInFrames;
   const listIn = progress(frame, s[9] + 6, 16);
@@ -114,9 +119,9 @@ export const Scene07ShowFragment: React.FC = () => {
         </Phone>
       </Appear>
       <Appear at={s[0] + 20} out={s[1]} from="right" style={{left: 700, top: 160, width: 1000}}>
-        <div style={{fontSize: 64, fontWeight: 800}}>RecyclerView</div>
+        <div style={{fontSize: 64, fontWeight: 800, direction: t('ltr', 'rtl')}}>RecyclerView</div>
         <div style={{fontSize: 36, color: colors.muted, marginTop: 16, lineHeight: 1.4}}>
-          A scrolling list. One row for each restaurant.
+          {t('A scrolling list. One row for each restaurant.', 'قائمة يمكن تمريرها. صف واحد لكل مطعم.')}
         </div>
       </Appear>
       {beat === 1 && <RecycleDemo start={s[1]} length={(s[2] ?? end) - s[1]} />}
@@ -124,9 +129,9 @@ export const Scene07ShowFragment: React.FC = () => {
       {/* Beat 2: the three parts */}
       {beat === 2 && (
         <>
-          <Part at={s[2] + 4} x={0} color={colors.blue} title="Row layout" text={<><Mono>item_restaurant.xml</Mono><br />What ONE row looks like: logo, texts and two buttons.</>} />
-          <Part at={s[2] + 14} x={610} color={colors.android} title="Adapter" text={<><Mono>RestaurantAdapter</Mono><br />Makes rows, and fills each row with a restaurant.</>} />
-          <Part at={s[2] + 24} x={1220} color={colors.purple} title="ViewHolder" text={<><Mono>RestaurantViewHolder</Mono><br />Keeps the views of one row, so we find them only once.</>} />
+          <Part at={s[2] + 4} x={0} color={colors.blue} title={t('Row layout', 'تصميم الصف')} text={<><Mono>item_restaurant.xml</Mono><br />{t('What ONE row looks like: logo, texts and two buttons.', 'شكل صف واحد: الشعار، والنصوص، والزرّان.')}</>} />
+          <Part at={s[2] + 14} x={610} color={colors.android} title="Adapter" text={<><Mono>RestaurantAdapter</Mono><br />{t('Makes rows, and fills each row with a restaurant.', 'ينشئ الصفوف، ويملأ كل صف بمطعم.')}</>} />
+          <Part at={s[2] + 24} x={1220} color={colors.purple} title="ViewHolder" text={<><Mono>RestaurantViewHolder</Mono><br />{t('Keeps the views of one row, so we find them only once.', 'يحفظ عناصر صف واحد، حتى نجدها مرة واحدة فقط.')}</>} />
         </>
       )}
 
@@ -158,10 +163,10 @@ export const Scene07ShowFragment: React.FC = () => {
         <div style={{marginTop: 180}} key={beat}>
           <div style={{opacity: progress(frame, s[beat] + 4, 12)}}>
             {beat === 3 && <InfoCard title="ViewHolder" color={colors.purple}>ivLogo, tvName, tvType, tvLocation, btnUpdate, btnDelete</InfoCard>}
-            {beat === 4 && <InfoCard title="onCreateViewHolder" color={colors.android}>Inflates <Mono>item_restaurant.xml</Mono> into a new row.</InfoCard>}
-            {beat === 5 && <InfoCard title="onBindViewHolder" color={colors.android}>Puts restaurant number <Mono>position</Mono> into the row. Glide loads the logo from its URL.</InfoCard>}
-            {beat === 6 && <InfoCard title="getItemCount" color={colors.android}><Mono>restaurants.size()</Mono> → how many rows to show.</InfoCard>}
-            {beat === 7 && <InfoCard title="Clicks" color={colors.firebase}>Update → <Mono>onUpdateClick(r)</Mono><br />Delete → <Mono>onDeleteClick(r)</Mono></InfoCard>}
+            {beat === 4 && <InfoCard title="onCreateViewHolder" color={colors.android} style={{direction: t('ltr', 'rtl')}}>{t(<>Inflates <Mono>item_restaurant.xml</Mono> into a new row.</>, <>تحوّل <Mono>item_restaurant.xml</Mono> إلى صف جديد.</>)}</InfoCard>}
+            {beat === 5 && <InfoCard title="onBindViewHolder" color={colors.android} style={{direction: t('ltr', 'rtl')}}>{t(<>Puts restaurant number <Mono>position</Mono> into the row. Glide loads the logo from its URL.</>, <>تضع المطعم رقم <Mono>position</Mono> في الصف. و Glide يحمّل الشعار من رابطه.</>)}</InfoCard>}
+            {beat === 6 && <InfoCard title="getItemCount" color={colors.android} style={{direction: t('ltr', 'rtl')}}><Mono>restaurants.size()</Mono> {t('→ how many rows to show.', '← عدد الصفوف التي نعرضها.')}</InfoCard>}
+            {beat === 7 && <InfoCard title={t('Clicks', 'الضغطات')} color={colors.firebase}>Update → <Mono>onUpdateClick(r)</Mono><br />Delete → <Mono>onDeleteClick(r)</Mono></InfoCard>}
           </div>
         </div>
       </Appear>
