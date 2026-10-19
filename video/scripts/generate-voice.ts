@@ -3,6 +3,8 @@
  *   public/audio/scene01.mp3, scene02.mp3, ...
  *
  * Setup: copy .env.example to .env and set ELEVENLABS_API_KEY (and VOICE_ID for your cloned voice).
+ * In a Claude Code cloud session, the key can instead be a network secret that adds the
+ * xi-api-key header for api.elevenlabs.io; then leave ELEVENLABS_API_KEY empty.
  *
  *   npm run voice                 make the files that do not exist yet
  *   npm run voice -- --force      make all files again (overwrites!)
@@ -29,13 +31,6 @@ const apiKey = process.env.ELEVENLABS_API_KEY?.trim();
 const voiceId = process.env.VOICE_ID?.trim() || PLACEHOLDER_VOICE_ID;
 
 const main = async () => {
-  if (!apiKey) {
-    console.log('No ELEVENLABS_API_KEY in .env, so no audio was made.');
-    console.log('That is OK: the video still works, with silent timing based on the script.');
-    console.log('To add a voice, copy .env.example to .env and fill it in, or record');
-    console.log('scene01.mp3, scene02.mp3, ... yourself into public/audio.');
-    return;
-  }
   if (onlyScene !== null && (!Number.isInteger(onlyScene) || onlyScene < 1 || onlyScene > scenes.length)) {
     throw new Error(`--scene must be a number from 1 to ${scenes.length}`);
   }
@@ -58,7 +53,8 @@ const main = async () => {
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
       {
         method: 'POST',
-        headers: {'xi-api-key': apiKey, 'Content-Type': 'application/json', Accept: 'audio/mpeg'},
+        // Without a key here, the request relies on a network secret adding the header
+        headers: {...(apiKey ? {'xi-api-key': apiKey} : {}), 'Content-Type': 'application/json', Accept: 'audio/mpeg'},
         body: JSON.stringify({
           text,
           model_id: MODEL_ID,
@@ -66,6 +62,14 @@ const main = async () => {
         }),
       },
     );
+    if (!response.ok && !apiKey && (response.status === 400 || response.status === 401)) {
+      console.log('No working ELEVENLABS_API_KEY, so no audio was made.');
+      console.log(`ElevenLabs said: ${await response.text()}`);
+      console.log('That is OK: the video still works, with silent timing based on the script.');
+      console.log('To add a voice, copy .env.example to .env and fill it in, or record');
+      console.log('scene01.mp3, scene02.mp3, ... yourself into public/audio.');
+      return;
+    }
     if (!response.ok) {
       throw new Error(`Scene ${number}: ElevenLabs said ${response.status} ${await response.text()}`);
     }
