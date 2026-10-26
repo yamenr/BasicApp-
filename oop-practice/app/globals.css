@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Segoe UI", Tahoma, "Noto Sans Arabic", "Noto Naskh Arabic", "Geeza Pro", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}
+
+/* Inline code inside Arabic text stays left-to-right. */
+.inline-code {
+  @apply rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.9em] text-indigo-700;
+  unicode-bidi: isolate;
+  direction: ltr;
+}

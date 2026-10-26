@@ -8,6 +8,7 @@ A tutorial for high-school CS students: build a basic Android app in Java with F
 | [`video/`](video) | The tutorial video, made with Remotion (React + TypeScript) |
 | [`script.md`](script.md) | The narration, scene by scene, with timings |
 | [`script.ar.md`](script.ar.md) | The Arabic narration (simple Modern Standard Arabic) |
+| [`oop-practice/`](oop-practice) | Interactive C# OOP practice web app (Next.js, Arabic RTL) with Google sign-in, scores and a teacher dashboard |
 
 ## The app
 

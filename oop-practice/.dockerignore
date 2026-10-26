@@ -1,0 +1,8 @@
+node_modules
+.next
+.env*
+!.env.example
+Dockerfile
+docker-compose.yml
+Caddyfile
+README.md
