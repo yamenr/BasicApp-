@@ -10,6 +10,7 @@ Teaching materials and apps for Yamen's high-school computer science classes.
 
 ## How we work
 
+- One project = one GitHub repo. Don't add a new project to an existing repo unless Yamen asks for that. At the start of a new project, make sure it has its own repo first.
 - Develop and test in the cloud session. Never develop directly on the Hetzner server: it also runs the live **director** app.
 - Work on a branch and open a pull request. Yamen reviews and merges. Never push to `main`.
 - Merging to `main` is the approval step. Deploys run from `main` only.
