@@ -102,16 +102,26 @@ docker compose exec -T db psql -U oop oop < backup-2026-11-01.sql    # restore i
 
 If another web server (Nginx) already uses ports 80/443, remove the `caddy` service from `docker-compose.yml`, add `ports: ["127.0.0.1:3000:3000"]` to `app`, and proxy your domain to `http://127.0.0.1:3000`.
 
-## Local development
+## Run it on your own computer
 
-```bash
-docker run -d --name oop-db -e POSTGRES_USER=oop -e POSTGRES_PASSWORD=oop -e POSTGRES_DB=oop -p 5432:5432 postgres:16-alpine
-cp .env.example .env.local   # set DATABASE_URL and NEXTAUTH_URL (the commented lines), and the Google keys
-npm install
-npm run dev                  # http://localhost:3000
-```
+You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/) (and Git to download the code).
 
-For local sign-in, add `http://localhost:3000/api/auth/callback/google` as another redirect URI in the Google OAuth client.
+1. In the Google OAuth client, add this redirect URI: `http://localhost:3000/api/auth/callback/google`
+2. In the `oop-practice` folder, create a file named `.env` with three lines:
+   ```
+   GOOGLE_CLIENT_ID=...apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=...
+   ADMIN_EMAILS=your.name@gmail.com
+   ```
+3. Start it:
+   ```bash
+   docker compose -f docker-compose.local.yml up --build
+   ```
+4. Open http://localhost:3000 and sign in. Press `Ctrl+C` in the terminal to stop it.
+
+The data stays saved between runs. To start again with an empty database: `docker compose -f docker-compose.local.yml down -v`.
+
+For code changes with live reload, run `npm install` and `npm run dev` instead, with a `.env.local` file that also sets `DATABASE_URL` and `NEXTAUTH_URL` (see `.env.example`).
 
 ## Project layout
 
@@ -126,4 +136,5 @@ For local sign-in, add `http://localhost:3000/api/auth/callback/google` as anoth
 | `lib/scores.ts` | Scoring rules and dashboard queries |
 | `lib/db.ts` | PostgreSQL connection and table definitions |
 | `scripts/verify-exercises.mjs` | Exercise checker (`npm run verify`) |
-| `Dockerfile`, `docker-compose.yml`, `Caddyfile` | Deployment |
+| `Dockerfile`, `docker-compose.yml`, `Caddyfile` | Deployment on the server |
+| `docker-compose.local.yml` | Running on your own computer |
