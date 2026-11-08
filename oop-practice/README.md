@@ -123,6 +123,12 @@ The data stays saved between runs. To start again with an empty database: `docke
 
 For code changes with live reload, run `npm install` and `npm run dev` instead, with a `.env.local` file that also sets `DATABASE_URL` and `NEXTAUTH_URL` (see `.env.example`).
 
+## Demo login (development only)
+
+To try the app without Google, for example in a preview: run `npm run dev` with `DEMO_LOGIN=true` and `ADMIN_EMAILS=teacher@demo.local`.
+A yellow bar then lets you sign in as a demo teacher or a demo student.
+It works only in development mode. A production build ignores `DEMO_LOGIN`, so the deployed app accepts Google sign-in only.
+
 ## Project layout
 
 | Path | What it is |
